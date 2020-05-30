@@ -7,3 +7,17 @@
     margin-top: 1rem;
   }
 }
+.mat-spinner {
+  margin: auto;
+}
+.imagePicker {
+  margin: 1rem 0;
+}
+input[type="file"] {
+  display: none;
+}
+.image-preview {
+  img {
+    width: 100%;
+  }
+}

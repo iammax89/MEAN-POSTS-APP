@@ -1,29 +1,61 @@
 <mat-card>
-  <form [formGroup]="postForm" (ngSubmit)="onAddPost()">
-    <mat-form-field>
-      <mat-label>Title</mat-label>
-      <input matInput type="text" formControlName="title" />
-      <mat-error *ngIf="postForm.get('title').hasError('required')">
-        This field is <strong>required</strong>
-      </mat-error>
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>Content</mat-label>
-      <textarea matInput rows="6" formControlName="content"></textarea>
-      <mat-error *ngIf="postForm.get('content').hasError('required')">
-        This field is <strong>required</strong>
-      </mat-error>
-      <mat-error
-        *ngIf="postForm.get('content').errors && postForm.get('content').errors.minlength"
+  <ng-container *ngIf="postId && !post; else createPostTemplate">
+    <mat-spinner></mat-spinner>
+  </ng-container>
+  <ng-template #createPostTemplate>
+    <form [formGroup]="postForm" (ngSubmit)="onAddPost()">
+      <mat-form-field>
+        <mat-label>Title</mat-label>
+        <input matInput type="text" formControlName="title" />
+        <mat-error *ngIf="postForm.get('title').hasError('required')">
+          This field is <strong>required</strong>
+        </mat-error>
+      </mat-form-field>
+      <div class="imagePicker">
+        <button
+          mat-raised-button
+          type="button"
+          color="primary"
+          (click)="filePicker.click()"
+        >
+          Pick Image
+        </button>
+        <input
+          type="file"
+          #filePicker
+          (change)="onImagePicked($event)"
+          accept=".jpg,.jpeg,.png"
+        />
+      </div>
+      <div
+        class="image-preview"
+        *ngIf="imagePreview && postForm.get('image').valid"
       >
-        This field should be at least 5 charackers long. You've input only
-        {{postForm.get('content').value.length}}
-        {{postForm.get('content').value.length === 1 ? 'characker' :
-        'charackers'}}.
-      </mat-error>
-    </mat-form-field>
-    <button type="submit" mat-raised-button color="primary">
-      Save Post
-    </button>
-  </form>
+        <img [src]="imagePreview" [alt]="postForm.get('title').value" />
+      </div>
+      <mat-form-field>
+        <mat-label>Content</mat-label>
+        <textarea matInput rows="6" formControlName="content"></textarea>
+        <mat-error *ngIf="postForm.get('content').hasError('required')">
+          This field is <strong>required</strong>
+        </mat-error>
+        <mat-error
+          *ngIf="postForm.get('content').errors && postForm.get('content').errors.minlength"
+        >
+          This field should be at least 5 charackers long. You've input only
+          {{postForm.get('content').value.length}}
+          {{postForm.get('content').value.length === 1 ? 'characker' :
+          'charackers'}}.
+        </mat-error>
+      </mat-form-field>
+      <button
+        [disabled]="isLoading"
+        type="submit"
+        mat-raised-button
+        color="primary"
+      >
+        Save Post
+      </button>
+    </form>
+  </ng-template>
 </mat-card>

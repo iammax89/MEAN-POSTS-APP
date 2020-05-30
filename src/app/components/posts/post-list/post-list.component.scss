@@ -1,8 +1,17 @@
-.posts-container {
+.post-image {
+  img {
+    width: 100%;
+  }
+}
+.mat-accordion .mat-expansion-panel {
+  margin: auto;
+}
+.mat-paginator {
   margin-top: 1rem;
 }
-
-.no-posts {
-  margin-top: 1rem;
+.no-posts-added h2 {
   text-align: center;
+}
+.mat-spinner {
+  margin: auto;
 }
