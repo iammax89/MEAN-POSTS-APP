@@ -8,15 +8,16 @@ const {
   updatePost,
 } = require("../controllers/posts");
 const uploadFile = require("../middleware/file-upload");
+const checkAuth = require("../middleware/auth");
 
 router.get("", getPosts);
 
 router.get("/:id", getPost);
 
-router.post("", uploadFile.single("image"), createPost);
+router.post("", checkAuth, uploadFile.single("image"), createPost);
 
-router.delete("/:id", deletePost);
+router.delete("/:id", checkAuth, deletePost);
 
-router.patch("/:id", uploadFile.single("image"), updatePost);
+router.patch("/:id", checkAuth, uploadFile.single("image"), updatePost);
 
 module.exports = router;

@@ -1,0 +1,51 @@
+<mat-card>
+  <mat-spinner *ngIf="isLoading"></mat-spinner>
+  <form [formGroup]="authForm" *ngIf="!isLoading" (ngSubmit)="onSubmit()">
+    <mat-form-field>
+      <mat-label>Email Address</mat-label>
+      <input
+        formControlName="email"
+        matInput
+        placeholder="Email Address"
+        required
+      />
+      <mat-error
+        *ngIf="authForm.get('email').errors && authForm.get('email').errors.required"
+      >
+        This field is <strong>required</strong>
+      </mat-error>
+      <mat-error
+        *ngIf="authForm.get('email').errors && authForm.get('email').errors.email"
+      >
+        This field must have an email format, example: "test@gmail.com"
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Password</mat-label>
+      <input
+        formControlName="password"
+        type="password"
+        matInput
+        placeholder="Password"
+        required
+      />
+      <mat-error
+        *ngIf="authForm.get('password').errors && authForm.get('password').errors.required"
+      >
+        This field is <strong>required</strong>
+      </mat-error>
+      <mat-error
+        *ngIf="authForm.get('password').errors && authForm.get('password').errors.minlength"
+      >
+        This field should be at least 5 charackers long. You've inputed only
+        {{authForm.get('password').value.length}}
+        {{authForm.get('password').value.length === 1 ? 'characker' :
+        'charackers'}}.
+      </mat-error>
+    </mat-form-field>
+    <button mat-raised-button color="primary" type="submit">
+      {{isLoginMode ? "Login" : "Signup"}}
+    </button>
+  </form>
+</mat-card>

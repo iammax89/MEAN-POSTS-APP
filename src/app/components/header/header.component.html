@@ -5,9 +5,32 @@
     routerLinkActive="router-link-active"
     [routerLinkActiveOptions]="{exact:
     true}"
-    ><h2>My messages</h2></a
+    >My messages</a
   >
-  <a mat-button [routerLink]="['/create']" routerLinkActive="router-link-active"
-    >Create Post</a
-  >
+  <div>
+    <a
+      *ngIf="isAuthenticated$ | async"
+      mat-button
+      [routerLink]="['/create']"
+      routerLinkActive="router-link-active"
+      >Create Post</a
+    >
+    <a
+      *ngIf="!(isAuthenticated$ | async)"
+      mat-button
+      [routerLink]="['/auth/login']"
+      routerLinkActive="router-link-active"
+      >Login</a
+    >
+    <a
+      *ngIf="!(isAuthenticated$ | async)"
+      mat-button
+      [routerLink]="['/auth/signup']"
+      routerLinkActive="router-link-active"
+      >Signup</a
+    >
+    <button mat-button *ngIf="isAuthenticated$ | async" (click)="onLogout()">
+      Logout
+    </button>
+  </div>
 </mat-toolbar>

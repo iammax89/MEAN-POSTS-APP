@@ -2,6 +2,7 @@
   "env": {
     "MONGO_USER_NAME": "Malyshko",
     "MONGO_PASSWORD": "bW4feZsaSR9nw9eQ",
-    "MONGO_DB": "mean-posts-app"
+    "MONGO_DB": "mean-posts-app",
+    "JWT_KEY": "thisissupersecretprivatekey"
   }
 }

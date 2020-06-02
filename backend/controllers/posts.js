@@ -1,12 +1,14 @@
+const fs = require("fs");
+const mongoose = require("mongoose");
 const Post = require("../models/post");
-
+const User = require("../models/user");
 const getPost = async (req, res, next) => {
   const id = req.params.id;
   try {
     const post = await Post.findById(id);
     res.status(200).json(post);
   } catch (error) {
-    throw new Error("Something went wrong please try again.");
+    res.status(500).json({ message: `Could not fetch post ${id}.` });
   }
 };
 
@@ -17,7 +19,6 @@ const getPosts = async (req, res, next) => {
   if (pageSize && currentPage) {
     postQuery.skip(pageSize * (currentPage - 1)).limit(pageSize);
   }
-  console.log(req.query);
   try {
     const posts = await postQuery;
     const total = await Post.count();
@@ -27,7 +28,7 @@ const getPosts = async (req, res, next) => {
       total,
     });
   } catch (err) {
-    throw new Error("Could not connect to database.");
+    res.status(500).json({ message: "Could not connect to database." });
   }
 };
 
@@ -37,38 +38,108 @@ const createPost = async (req, res, next) => {
       title: req.body.title,
       content: req.body.content,
       imageUrl: req.file.path,
+      creator: req.userData.userId,
     });
-    await post.save();
-    res.status(201).json({ message: "Success!!!", post });
+    let user;
+    try {
+      user = await User.findById(req.userData.userId);
+    } catch (error) {
+      res.status(500).json({
+        error,
+      });
+    }
+    if (!user) {
+      res.status(404).json({
+        message: "Could not find user for the provided id",
+      });
+    }
+    try {
+      const session = await mongoose.startSession();
+      session.startTransaction();
+      await post.save({ session: session });
+      user.posts.push(post);
+      await user.save({ session: session });
+      await session.commitTransaction();
+    } catch (error) {
+      res.status(500).json({
+        error,
+      });
+    }
+    res.status(201).json({ message: "Post created successfully!", post });
   } catch (error) {
-    throw new Error("Something went wrong, please try agian!");
+    res.status(500).json({
+      message: "Creating a post failed!",
+    });
   }
 };
 
 const deletePost = async (req, res, next) => {
   const id = req.params.id;
+  let post;
   try {
-    await Post.findOneAndDelete({ _id: id });
-    res.status(200).json({ message: `Post ${id} successfully deleted.` });
+    post = await Post.findById(id).populate("creator");
   } catch (error) {
-    throw new Error("Something went wrong please try again.");
+    res.status(500).json({
+      error: error.error,
+    });
   }
+  if (!post) {
+    res.status(404).json({
+      message: "Could not find a post for the provided id.",
+    });
+  }
+  if (post.creator.id !== req.userData.userId) {
+    return res.status(401).json({
+      message: "You are not allowed to delete this post.",
+    });
+  }
+  const imagePath = post.imageUrl;
+  try {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    await post.remove({ session: session });
+    post.creator.posts.pull(post);
+    await post.creator.save({ session: session });
+    await session.commitTransaction();
+    fs.unlink(imagePath, (err) => console.log(err));
+  } catch (error) {
+    res.status(500).json({
+      message: `Couil not delete Post ${id}. Please try agian.`,
+    });
+  }
+
+  res.status(200).json({ message: `Post ${id} successfully deleted.` });
 };
 
 const updatePost = async (req, res, next) => {
   const id = req.params.id;
-  const post = {
+  let post;
+  try {
+    post = await Post.findById(id).populate("creator");
+    if (post.creator.id !== req.userData.userId) {
+      return res.status(401).json({
+        message: "You are not allowed to edit this post.",
+      });
+    }
+  } catch (error) {
+    res.json({ error: error.error });
+  }
+  const imagePath = post.imageUrl;
+  const editedPost = {
     title: req.body.title,
     content: req.body.content,
   };
   if (req.file) {
-    post.imageUrl = req.file.path;
+    editedPost.imageUrl = req.file.path;
   }
   try {
-    await Post.updateOne({ _id: id }, post);
+    await Post.updateOne({ _id: id }, editedPost);
+    if (req.file) {
+      fs.unlink(imagePath, (err) => console.log(err));
+    }
     res.status(201).json({ message: "Successfully updated" });
   } catch (error) {
-    throw new Error("Something went wrong please try again.");
+    res.json({ message: "Could not update the post." });
   }
 };
 

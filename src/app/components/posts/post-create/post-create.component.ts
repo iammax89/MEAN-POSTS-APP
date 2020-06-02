@@ -5,6 +5,7 @@ import { PostsService } from "src/app/services/posts.service";
 import { ActivatedRoute, Params } from "@angular/router";
 import { map } from "rxjs/operators";
 import { mimeType } from "src/validators/mime-type.validator";
+import { environment } from "../../../../environments/environment";
 
 @Component({
   selector: "app-post-create",
@@ -19,11 +20,17 @@ export class PostCreateComponent implements OnInit {
   post: IPost;
   isLoading = false;
   imagePreview: string;
+  imageDataUrl = environment.imageDataUrl;
   constructor(
     private postsService: PostsService,
     private route: ActivatedRoute
   ) {}
   ngOnInit(): void {
+    this.postsService.getError().subscribe((error) => {
+      if (error) {
+        this.isLoading = false;
+      }
+    });
     this.postForm = new FormGroup({
       title: new FormControl("", { validators: [Validators.required] }),
       image: new FormControl(null, {
@@ -45,7 +52,8 @@ export class PostCreateComponent implements OnInit {
               id: data["_id"],
               title: data["title"],
               content: data["content"],
-              imageUrl: `http://localhost:5000/${data["imageUrl"]}`,
+              imageUrl: `${this.imageDataUrl}/${data["imageUrl"]}`,
+              creator: data["creator"],
             }))
           )
           .subscribe((post: IPost) => {

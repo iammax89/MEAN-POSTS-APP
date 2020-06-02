@@ -1,8 +1,9 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { IPost } from "src/models/post.interface";
 import { PostsService } from "src/app/services/posts.service";
-import { Subscription } from "rxjs";
+import { Subscription, Observable, of } from "rxjs";
 import { PageEvent } from "@angular/material/paginator";
+import { AuthService } from "src/app/services/auth.service";
 
 @Component({
   selector: "app-post-list",
@@ -10,14 +11,20 @@ import { PageEvent } from "@angular/material/paginator";
   styleUrls: ["../post-list/post-list.component.scss"],
 })
 export class PostListComponent implements OnInit, OnDestroy {
-  public posts: IPost[] = [];
+  posts: IPost[] = [];
+  isAuthenticated$: Observable<boolean> = of(false);
   private postsSub: Subscription;
   totalPosts = 0;
   postsPerPage = 5;
   currentPage = 0;
   pageSizeOptions: number[] = [1, 5, 10, 25];
   isLoading = false;
-  constructor(private postsService: PostsService) {}
+  userId: string;
+
+  constructor(
+    private postsService: PostsService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.isLoading = true;
@@ -27,6 +34,8 @@ export class PostListComponent implements OnInit, OnDestroy {
         this.posts = response.posts;
         this.totalPosts = response.totalPosts;
         this.isLoading = false;
+        this.isAuthenticated$ = this.authService.getAuthStatus();
+        this.userId = this.authService.getUserId();
       },
       (err) => console.log(err)
     );
@@ -39,10 +48,13 @@ export class PostListComponent implements OnInit, OnDestroy {
   };
   onDeletePost = (id: string) => {
     this.isLoading = true;
-    this.postsService.deletePost(id).subscribe((response: any) => {
-      console.log(response.message);
-      this.postsService.getPosts(this.postsPerPage, this.currentPage);
-    });
+    this.postsService.deletePost(id).subscribe(
+      (response: any) => {
+        console.log(response.message);
+        this.postsService.getPosts(this.postsPerPage, this.currentPage);
+      },
+      () => (this.isLoading = false)
+    );
   };
   ngOnDestroy(): void {
     this.postsSub.unsubscribe();
