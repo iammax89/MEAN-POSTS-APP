@@ -10,6 +10,7 @@ import { ErrorInterceptor } from "./error-interceptor";
 import { ErrorModal } from "./components/error/error-modal/error-modal.component";
 import { AngularMaterialModule } from "./common/material.module";
 import { PostsModule } from "./components/posts/posts.module";
+import { StoreModule } from '@ngrx/store';
 
 @NgModule({
   declarations: [AppComponent, HeaderComponent, ErrorModal],
@@ -20,6 +21,7 @@ import { PostsModule } from "./components/posts/posts.module";
     BrowserAnimationsModule,
     AngularMaterialModule,
     PostsModule,
+    StoreModule.forRoot({}, {}),
   ],
   entryComponents: [ErrorModal],
   providers: [
