@@ -113,7 +113,7 @@ const login = async (req, res, next) => {
     });
   }
 
-  res.status(201).json({
+  res.status(200).json({
     message: "Login successfully!",
     userData: {
       id: user._id,

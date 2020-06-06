@@ -9,27 +9,31 @@
   >
   <div>
     <a
-      *ngIf="isAuthenticated$ | async"
+      *ngIf="(isAuthenticated$ | async).authStatus"
       mat-button
       [routerLink]="['/create']"
       routerLinkActive="router-link-active"
       >Create Post</a
     >
     <a
-      *ngIf="!(isAuthenticated$ | async)"
+      *ngIf="!(isAuthenticated$ | async).authStatus"
       mat-button
       [routerLink]="['/auth/login']"
       routerLinkActive="router-link-active"
       >Login</a
     >
     <a
-      *ngIf="!(isAuthenticated$ | async)"
+      *ngIf="!(isAuthenticated$ | async).authStatus"
       mat-button
       [routerLink]="['/auth/signup']"
       routerLinkActive="router-link-active"
       >Signup</a
     >
-    <button mat-button *ngIf="isAuthenticated$ | async" (click)="onLogout()">
+    <button
+      mat-button
+      *ngIf="(isAuthenticated$ | async).authStatus"
+      (click)="onLogout()"
+    >
       Logout
     </button>
   </div>

@@ -1,5 +1,7 @@
 <mat-card>
-  <ng-container *ngIf="postId && !post; else createPostTemplate">
+  <ng-container
+    *ngIf="(postsListState$ | async).isLoading; else createPostTemplate"
+  >
     <mat-spinner></mat-spinner>
   </ng-container>
   <ng-template #createPostTemplate>
@@ -49,7 +51,7 @@
         </mat-error>
       </mat-form-field>
       <button
-        [disabled]="isLoading"
+        [disabled]="(postsListState$ | async).isLoading"
         type="submit"
         mat-raised-button
         color="primary"

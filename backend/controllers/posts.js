@@ -6,7 +6,7 @@ const getPost = async (req, res, next) => {
   const id = req.params.id;
   try {
     const post = await Post.findById(id);
-    res.status(200).json(post);
+    res.status(200).json({ message: `Post ${id} fetched successfully!`, post });
   } catch (error) {
     res.status(500).json({ message: `Could not fetch post ${id}.` });
   }
@@ -108,7 +108,7 @@ const deletePost = async (req, res, next) => {
     });
   }
 
-  res.status(200).json({ message: `Post ${id} successfully deleted.` });
+  res.status(200).json({ message: `Post ${id} successfully deleted.`, id });
 };
 
 const updatePost = async (req, res, next) => {
@@ -137,7 +137,7 @@ const updatePost = async (req, res, next) => {
     if (req.file) {
       fs.unlink(imagePath, (err) => console.log(err));
     }
-    res.status(201).json({ message: "Successfully updated" });
+    res.status(201).json({ message: `Post ${id} successfully updated!` });
   } catch (error) {
     res.json({ message: "Could not update the post." });
   }

@@ -1,6 +1,9 @@
-<mat-spinner *ngIf="isLoading"></mat-spinner>
-<mat-accordion multi *ngIf="!isLoading">
-  <mat-expansion-panel *ngFor="let post of posts" class="posts-container">
+<mat-spinner *ngIf="(postsListState$ | async).isLoading"></mat-spinner>
+<mat-accordion multi *ngIf="!(postsListState$ | async).isLoading">
+  <mat-expansion-panel
+    *ngFor="let post of (postsListState$ | async).posts"
+    class="posts-container"
+  >
     <mat-expansion-panel-header>
       {{post.title}}
     </mat-expansion-panel-header>
@@ -9,7 +12,7 @@
     </div>
     <p>{{post.content}}</p>
     <mat-action-row
-      *ngIf="(isAuthenticated$ | async) && post.creator === userId"
+      *ngIf="(authState$ | async).authStatus && post.creator === (authState$ | async).userId"
     >
       <button mat-button color="accent" [routerLink]="['/edit', post.id]">
         EDIT
@@ -21,8 +24,8 @@
   </mat-expansion-panel>
 </mat-accordion>
 <mat-paginator
-  *ngIf="posts.length"
-  [length]="totalPosts"
+  *ngIf="(postsListState$ | async).posts.length"
+  [length]="(postsListState$ | async).postsTotal"
   [pageSize]="postsPerPage"
   [pageSizeOptions]="pageSizeOptions"
   (page)="onPageChange($event)"

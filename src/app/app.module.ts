@@ -10,7 +10,14 @@ import { ErrorInterceptor } from "./error-interceptor";
 import { ErrorModal } from "./components/error/error-modal/error-modal.component";
 import { AngularMaterialModule } from "./common/material.module";
 import { PostsModule } from "./components/posts/posts.module";
-import { StoreModule } from '@ngrx/store';
+import { StoreModule } from "@ngrx/store";
+import * as fromApp from "../app/+store/app.reducer";
+import { EffectsModule } from "@ngrx/effects";
+import { AuthEffects } from "./auth/+store/auth.effects";
+import { StoreDevtoolsModule } from "@ngrx/store-devtools";
+import { environment } from "../environments/environment";
+import { StoreRouterConnectingModule } from "@ngrx/router-store";
+import { PostsListsEffects } from "./components/posts/+store/posts-list.effects";
 
 @NgModule({
   declarations: [AppComponent, HeaderComponent, ErrorModal],
@@ -21,7 +28,13 @@ import { StoreModule } from '@ngrx/store';
     BrowserAnimationsModule,
     AngularMaterialModule,
     PostsModule,
-    StoreModule.forRoot({}, {}),
+    StoreModule.forRoot(fromApp.appReducer),
+    EffectsModule.forRoot([AuthEffects, PostsListsEffects]),
+    StoreDevtoolsModule.instrument({
+      maxAge: 25,
+      logOnly: environment.production,
+    }),
+    StoreRouterConnectingModule.forRoot(),
   ],
   entryComponents: [ErrorModal],
   providers: [

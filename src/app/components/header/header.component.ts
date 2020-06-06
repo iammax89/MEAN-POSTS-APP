@@ -1,21 +1,22 @@
 import { Component, OnInit } from "@angular/core";
-import { AuthService } from "src/app/services/auth.service";
-import { Observable, of } from "rxjs";
-
+import { Observable } from "rxjs";
+import { Store } from "@ngrx/store";
+import * as fromApp from "src/app/+store/app.reducer";
+import * as authActions from "src/app/auth/+store/auth-actions";
 @Component({
   selector: "app-header",
   templateUrl: "../header/header.component.html",
   styleUrls: ["../header/header.component.scss"],
 })
 export class HeaderComponent implements OnInit {
-  isAuthenticated$: Observable<boolean> = of(false);
-  constructor(private authService: AuthService) {}
+  isAuthenticated$: Observable<{ authStatus: boolean }>;
+  constructor(private store: Store<fromApp.AppState>) {}
 
   ngOnInit() {
-    this.isAuthenticated$ = this.authService.getAuthStatus();
+    this.isAuthenticated$ = this.store.select("auth");
   }
 
   onLogout = () => {
-    this.authService.clearToken();
+    this.store.dispatch(new authActions.Logout());
   };
 }
